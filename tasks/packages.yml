@@ -1,0 +1,14 @@
+---
+
+- name: Install required dependencies and toolchain
+  apt:
+    name:
+      - git
+      - bc
+      - bison
+      - flex
+      - libssl-dev
+      - make
+      - libc6-dev
+      - libncurses5-dev
+  when: ansible_facts['os_family'] == "Debian"
