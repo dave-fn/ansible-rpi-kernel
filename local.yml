@@ -11,6 +11,9 @@
     - name: rpi_arch
       prompt: Enter kernel architecture
       private: no
+    # - name: build_dir
+    #   prompt: Enter temporary directory in which to build kernel
+    #   private: no
 
   vars_files:
     - variables/kernel.yml
@@ -22,4 +25,5 @@
 
   tasks:
     - include: tasks/packages.yml
+    - include: tasks/kernel-build.yml
 
