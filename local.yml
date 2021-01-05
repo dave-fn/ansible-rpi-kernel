@@ -4,6 +4,17 @@
   connection: local
   become: true
 
+  vars_prompt:
+    - name: rpi_model
+      prompt: Enter Raspberry Pi model
+      private: no
+    - name: rpi_arch
+      prompt: Enter kernel architecture
+      private: no
+
+  vars_files:
+    - variables/kernel.yml
+
   pre_tasks:
     - name: update repositories
       apt:

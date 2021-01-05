@@ -1,6 +1,6 @@
 ---
 
-- name: Install required dependencies and toolchain
+- name: Install required dependencies
   apt:
     name:
       - git
@@ -11,4 +11,9 @@
       - make
       - libc6-dev
       - libncurses5-dev
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install toolchain
+  apt:
+    name: "{{ toolchain[rpi_arch] }}"
   when: ansible_facts['os_family'] == "Debian"

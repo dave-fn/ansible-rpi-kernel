@@ -1,0 +1,5 @@
+---
+
+toolchain:
+  "32": crossbuild-essential-armhf
+  "64": crossbuild-essential-arm64
