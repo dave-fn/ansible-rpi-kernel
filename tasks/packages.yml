@@ -12,8 +12,12 @@
       - libc6-dev
       - libncurses5-dev
   when: ansible_facts['os_family'] == "Debian"
+  tags:
+    - packages
 
 - name: Install toolchain
   apt:
     name: "{{ toolchain[rpi_arch] }}"
   when: ansible_facts['os_family'] == "Debian"
+  tags:
+    - packages

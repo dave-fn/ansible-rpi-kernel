@@ -3,3 +3,37 @@
 toolchain:
   "32": crossbuild-essential-armhf
   "64": crossbuild-essential-arm64
+
+kernel:
+  "32":
+    "3": kernel7
+    "4": kernel7l
+  "64":
+    "3": kernel8
+    "4": kernel8
+
+make_params:
+  arch:
+    "32":
+      "3": arm
+      "4": arm
+    "64":
+      "3": arm64
+      "4": arm64
+  cross_compile:
+    "32":
+      "3": arm-linux-gnueabihf-
+      "4": arm-linux-gnueabihf-
+    "64":
+      "3": aarch64-linux-gnu-
+      "4": aarch64-linux-gnu-
+  target:
+    "32":
+      "3": bcm2709_defconfig
+      "4": bcm2711_defconfig
+    "64":
+      "3": bcmrpi3_defconfig
+      "4": bcm2711_defconfig
+  image:
+    "32": zImage
+    "64": Image

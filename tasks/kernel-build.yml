@@ -7,3 +7,37 @@
     depth: 1
     dest: build/linux
     #dest: "{{ build_dir }}"
+  tags:
+    - git
+
+- name: Build default configuration file
+  make:
+    target: "{{ make_params.target[rpi_arch][rpi_model] }}"
+    chdir: build/linux
+    params:
+      KERNEL: "{{ kernel[rpi_arch][rpi_model] }}"
+      ARCH: "{{ make_params.arch[rpi_arch][rpi_model] }}"
+      CROSS_COMPILE: "{{ make_params.cross_compile[rpi_arch][rpi_model] }}"
+  when: config_path is not defined
+  tags:
+    - build
+
+- name: Override configuration file
+  copy:
+    src: "{{ config_path }}"
+    dest: build/linux/.config
+  when: config_path is defined
+  tags:
+    - build
+
+- name: Build kernel
+  command:
+    cmd: >-
+      make
+      KERNEL={{ kernel[rpi_arch][rpi_model] }}
+      ARCH={{ make_params.arch[rpi_arch][rpi_model] }}
+      CROSS_COMPILE={{ make_params.cross_compile[rpi_arch][rpi_model] }}
+      {{ make_params.image[rpi_arch] }} modules dtbs
+    chdir: build/linux
+  tags:
+    - build

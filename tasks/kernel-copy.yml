@@ -1,0 +1,130 @@
+---
+
+- name: Create mount directory for fat32 partition
+  file:
+    path: build/linux/mnt/fat32
+    state: directory
+  tags:
+    - copy
+
+- name: Create mount directory for ext4 partition
+  file:
+    path: build/linux/mnt/ext4
+    state: directory
+  tags:
+    - copy
+
+- name: Mount fat32 partition
+  mount:
+    src: "{{ sd_fat32 }}"
+    path: build/linux/mnt/fat32
+    state: mounted
+    fstype: vfat
+    fstab: /tmp/tmp.fstab
+  become: true
+  tags:
+    - copy
+
+- name: Mount ext4 partition
+  mount:
+    src: "{{ sd_ext4 }}"
+    path: build/linux/mnt/ext4
+    state: mounted
+    fstype: ext4
+    fstab: /tmp/tmp.fstab
+  become: true
+  tags:
+    - copy
+
+- name: Install kernel modules into SD card
+  command:
+    cmd: >-
+      env PATH=$PATH
+      make ARCH={{ make_params.arch[rpi_arch][rpi_model] }}
+      CROSS_COMPILE={{ make_params.cross_compile[rpi_arch][rpi_model] }}
+      INSTALL_MOD_PATH=mnt/ext4
+      modules_install
+    chdir: build/linux
+  become: true
+  tags:
+    - copy
+
+- name: Backup original kernel image
+  copy:
+    src: "build/linux/mnt/fat32/{{ kernel[rpi_arch][rpi_model] }}.img"
+    dest: "build/linux/mnt/fat32/{{ kernel[rpi_arch][rpi_model] }}-backup.img"
+    # chdir: build/linux
+  become: yes
+  tags:
+    - copy
+
+- name: Install kernel image
+  copy:
+    src: "build/linux/arch/{{ make_params.arch[rpi_arch][rpi_model] }}/boot/{{ make_params.image[rpi_arch] }}"
+    dest: "build/linux/mnt/fat32/{{ kernel[rpi_arch][rpi_model] }}.img"
+    # chdir: build/linux
+  become: yes
+  tags:
+    - copy
+
+- name: Install dts files (32-bit)
+  copy:
+    src: "{{ item }}"
+    dest: "build/linux/mnt/fat32/"
+    # chdir: build/linux
+  become: yes
+  with_fileglob:
+    - "build/linux/arch/{{ make_params.arch[rpi_arch][rpi_model] }}/boot/dts/*.dtb"
+  when: rpi_arch == "32"
+  tags:
+    - copy
+
+- name: Install dts files (64-bit)
+  copy:
+    src: "{{ item }}"
+    dest: "build/linux/mnt/fat32/"
+    # chdir: build/linux
+  become: yes
+  with_fileglob:
+    - "build/linux/arch/{{ make_params.arch[rpi_arch][rpi_model] }}/boot/dts/broadcom/*.dtb"
+  when: rpi_arch == "64"
+  tags:
+    - copy
+
+- name: Install dts overlays files
+  copy:
+    src: "{{ item }}"
+    dest: "build/linux/mnt/fat32/overlays/"
+    # chdir: build/linux
+  become: yes
+  with_fileglob:
+    - "build/linux/arch/{{ make_params.arch[rpi_arch][rpi_model] }}/boot/dts/overlays/*.dtb*"
+  tags:
+    - copy
+
+- name: Install dts overlays README file
+  copy:
+    src: "build/linux/arch/{{ make_params.arch[rpi_arch][rpi_model] }}/boot/dts/overlays/README"
+    dest: "build/linux/mnt/fat32/overlays/"
+    # chdir: build/linux
+  become: yes
+  tags:
+    - copy
+
+- name: Unmount fat32 partition
+  mount:
+    path: build/linux/mnt/fat32
+    state: unmounted
+    fstab: /tmp/tmp.fstab
+  become: true
+  tags:
+    - copy
+
+- name: Unmount ext4 partition
+  mount:
+    path: build/linux/mnt/ext4
+    state: unmounted
+    fstab: /tmp/tmp.fstab
+  become: true
+  tags:
+    - copy

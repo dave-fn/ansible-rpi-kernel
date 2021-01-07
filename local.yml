@@ -2,7 +2,6 @@
 
 - hosts: localhost
   connection: local
-  become: true
 
   vars_prompt:
     - name: rpi_model
@@ -25,5 +24,7 @@
 
   tasks:
     - include: tasks/packages.yml
+      become: true
     - include: tasks/kernel-build.yml
+    - include: tasks/kernel-copy.yml
 
